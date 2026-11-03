@@ -180,7 +180,7 @@ def test_paragraph_broken_at_column_is_merged():
 
 def test_section_number_after_period_starts_paragraph():
     from omni_markitdown.engines.ocr_engine import SECTION_NUMBER_SPLIT_RE as R
-    assert R.split("注目される。2本件の事案は") == ["注目される。", "2本件の事案は"]
+    assert R.split("注目される。2今回の調査は") == ["注目される。", "2今回の調査は"]
     assert len(R.split("決定した。5人の委員が。12月に")) == 1
 
 
@@ -202,8 +202,8 @@ def test_broken_text_layer_is_treated_as_scanned(no_ndlocr, tmp_path: Path):
 
 def test_pages_are_stitched_when_sentence_continues():
     from omni_markitdown.engines.pdf_engine import _stitch_pages
-    out = _stitch_pages(["前のページの文が「本件神社の表", "示」に続く。\n\n次の段落。"])
-    assert out == ["前のページの文が「本件神社の表示」に続く。", "次の段落。"]
+    out = _stitch_pages(["前のページの文が「対象施設の表", "示」に続く。\n\n次の段落。"])
+    assert out == ["前のページの文が「対象施設の表示」に続く。", "次の段落。"]
 
 
 # ---------------------------------------------------------------- 照合の補助
@@ -288,3 +288,10 @@ def test_short_text_page_is_not_ocred(fake_ndlocr, tmp_path: Path):
     result = convert(pdf_path)
     assert result.metadata["ocr_pages"] == []
     assert "第1章 概要" in result.markdown
+
+
+def test_space_after_japanese_punctuation_removed():
+    """OCR が日本語の句読点の後ろに入れる空白を取る（200dpi で読むと出る）。英文の空白は残す"""
+    from omni_markitdown.utils.pdf_text import normalize_ocr_punctuation as n
+    assert n("担当者Aが司会、 その他の三名が補助となり、 いずれも所定の手順で。 次に") == "担当者Aが司会、その他の三名が補助となり、いずれも所定の手順で。次に"
+    assert n("see the result. Next step") == "see the result. Next step"

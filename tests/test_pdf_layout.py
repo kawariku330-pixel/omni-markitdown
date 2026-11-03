@@ -30,12 +30,12 @@ def test_overprinted_punctuation_is_put_back_in_place(tmp_path: Path):
     doc = pymupdf.open()
     page = _page(doc)
     # 本文は読点の位置を空けて描き、読点は別の命令で後から描く
-    page.insert_text((100, 150), "損害について", fontname="jp", fontsize=10)
-    page.insert_text((170, 150), "その回復", fontname="jp", fontsize=10)
+    page.insert_text((100, 150), "交通量の変化", fontname="jp", fontsize=10)
+    page.insert_text((170, 150), "その推移", fontname="jp", fontsize=10)
     page.insert_text((160, 150), "，", fontname="jp", fontsize=10)
     result = convert(_save(doc, tmp_path / "comma.pdf"))
     # テスト用フォントは全角読点を半角で書き出すので、どちらでもよい
-    assert re.search("損害について[，,]その回復", result.markdown)
+    assert re.search("交通量の変化[，,]その推移", result.markdown)
 
 
 def test_wrapped_lines_join_and_indent_starts_paragraph(tmp_path: Path):
@@ -90,12 +90,12 @@ def test_ruled_table_becomes_markdown_table(tmp_path: Path):
         page.draw_line((xs[0], y), (xs[-1], y))
     for x in xs:
         page.draw_line((x, ys[0]), (x, ys[-1]))
-    for r, (a, b) in enumerate([("項目", "金額"), ("請求額", "100万円"), ("認容額", "80万円")]):
+    for r, (a, b) in enumerate([("項目", "金額"), ("予算額", "100万円"), ("決算額", "80万円")]):
         page.insert_text((55, ys[r] + 15), a, fontname="jp", fontsize=10)
         page.insert_text((205, ys[r] + 15), b, fontname="jp", fontsize=10)
     md = convert(_save(doc, tmp_path / "table.pdf")).markdown
     assert "| 項目 | 金額 |" in md
-    assert "| 請求額 | 100万円 |" in md
+    assert "| 予算額 | 100万円 |" in md
 
 
 def test_emphasis_dots_are_dropped(tmp_path: Path):
@@ -112,11 +112,11 @@ def test_emphasis_dots_are_dropped(tmp_path: Path):
 def test_highlight_text_is_extracted(tmp_path: Path):
     doc = pymupdf.open()
     page = _page(doc)
-    page.insert_text((100, 150), "重要な判示部分", fontname="jp", fontsize=10)
-    page.add_highlight_annot(page.search_for("重要な判示部分")[0])
+    page.insert_text((100, 150), "重要な説明部分", fontname="jp", fontsize=10)
+    page.add_highlight_annot(page.search_for("重要な説明部分")[0])
     result = convert(_save(doc, tmp_path / "hl.pdf"))
     assert "🖍️ ハイライト" in result.markdown
-    assert "重要な判示部分" in result.notes[0].content
+    assert "重要な説明部分" in result.notes[0].content
 
 
 def test_same_image_on_every_page_saved_once(tmp_path: Path):
