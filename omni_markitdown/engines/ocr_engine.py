@@ -238,7 +238,7 @@ def blocks_to_markdown(blocks: List[TextBlock]) -> str:
         cur.append(b.text)
     flush()
     paras = merge_broken_paragraphs([normalize_ocr_punctuation(p) for p in paras])
-    # 「…注目される。2本件の事案は」のように、文末の直後に段落番号が来たらそこで段落を分ける
+    # 「…注目される。2今回の調査は」のように、文末の直後に段落番号が来たらそこで段落を分ける
     split: List[str] = []
     for p in paras:
         split.extend(x for x in SECTION_NUMBER_SPLIT_RE.split(p) if x)
